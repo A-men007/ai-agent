@@ -1,0 +1,49 @@
+import os
+from google.genai import types
+
+def get_files_info(working_directory, directory="."):
+    try:
+        # 1️⃣ Build absolute path safely
+        full_path = os.path.abspath(os.path.join(working_directory, directory))
+
+        # 2️⃣ Prevent directory traversal
+        if not full_path.startswith(os.path.abspath(working_directory)):
+            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory.'
+
+        # 3️⃣ Check if directory exists
+        if not os.path.exists(full_path):
+            return f'Error: Directory "{directory}" does not exist.'
+
+        # 4️⃣ Build formatted directory info string
+        output_lines = []
+
+        for entry in os.listdir(full_path):
+            entry_path = os.path.join(full_path, entry)
+            is_dir = os.path.isdir(entry_path)
+            size = os.path.getsize(entry_path) if not is_dir else 128  # example placeholder for dirs
+
+            output_lines.append(f"- {entry}: file_size={size} bytes, is_dir={is_dir}")
+
+        # 5️⃣ Join all entries into one printable string
+        return "\n".join(output_lines)
+
+
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# --- Function schema for LLM ---
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="List files and directories inside a given path.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="Directory to list, relative to working directory."
+            )
+        },
+        required=["directory"]
+    )
+)
