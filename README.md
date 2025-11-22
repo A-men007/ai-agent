@@ -1,4 +1,4 @@
-🚀 AI Coding Agent — Boot.dev Project
+🚀 AI Coding Agent 
 
 An AI-powered coding agent that can:
 
